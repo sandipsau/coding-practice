@@ -9,7 +9,7 @@ public class CountRepeatedChars {
         String input = sc.nextLine();
         StringBuilder sb = new StringBuilder();
         int length = input.length();
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; ) {
             int count = 1;
             int j = i + 1;
             char ch = input.charAt(i);
@@ -18,10 +18,10 @@ public class CountRepeatedChars {
                 j++;
             }
             sb.append(input.charAt(i));
-            if(count > 1){
+            //if(count > 1){
                 sb.append(count);
-            }
-            i = j - 1;
+            //}
+            i = j;
         }
         System.out.println(sb.toString());
     }
