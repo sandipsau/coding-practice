@@ -593,3 +593,109 @@ class Solution {
 - Total: O(n log n)
 **Space complexities**
 - Space: O(n) for prefix array
+
+## Minimum Window Substring
+
+**Problem**
+```text
+Given two strings s and t of lengths m and n respectively, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string "".
+
+The testcases will be generated such that the answer is unique.
+
+ 
+
+Example 1:
+
+Input: s = "ADOBECODEBANC", t = "ABC"
+Output: "BANC"
+Explanation: The minimum window substring "BANC" includes 'A', 'B', and 'C' from string t.
+Example 2:
+
+Input: s = "a", t = "a"
+Output: "a"
+Explanation: The entire string s is the minimum window.
+Example 3:
+
+Input: s = "a", t = "aa"
+Output: ""
+Explanation: Both 'a's from t must be included in the window.
+Since the largest window of s only has one 'a', return empty string.
+ 
+
+Constraints:
+
+m == s.length
+n == t.length
+1 <= m, n <= 105
+s and t consist of uppercase and lowercase English letters.
+ 
+
+Follow up: Could you find an algorithm that runs in O(m + n) time?
+```
+
+**Solution**
+```java
+class Solution {
+    public String minWindow(String s, String t) {
+        if (t.length() == 0 || s.length() < t.length()) return "";
+
+        int[] need = new int[128];
+        for (char c : t.toCharArray()) need[c]++;
+
+        int required = t.length(); // total characters we still need to match (includes duplicates)
+
+        int left = 0;
+        int bestStart = 0;
+        int bestLen = Integer.MAX_VALUE;
+
+        for (int right = 0; right < s.length(); right++) {
+            char c = s.charAt(right);
+
+            // If this char is still needed, it reduces required
+            if (need[c] > 0) required--;
+
+            // Either way, we "consume" it in the window
+            need[c]--;
+
+            // When required == 0, window is valid
+            while (required == 0) {
+                // Update best answer
+                int windowLen = right - left + 1;
+                if (windowLen < bestLen) {
+                    bestLen = windowLen;
+                    bestStart = left;
+                }
+
+                // Try to remove s[left] from window
+                char leftChar = s.charAt(left);
+                need[leftChar]++;
+
+                // If after removing, we now need this char (>0), window becomes invalid
+                if (need[leftChar] > 0) required++;
+
+                left++;
+            }
+        }
+
+        return bestLen == Integer.MAX_VALUE ? "" : s.substring(bestStart, bestStart + bestLen);
+    }
+}
+
+```
+**Time complexities**
+- Time Complexity: O(|s| + |t|) (often written as O(m + n))
+    - m = s.length()
+    - n = t.length()
+- Build the need array from t
+    - Runs n times → O(n)
+- Scan s with right
+    - Runs m times → O(m)
+- The inner while (required == 0) doesn’t make it O(m²)
+Because left only moves forward from 0 to m-1 once total across the whole run.
+- So total work from shrinking is also O(m).
+- So overall O(n) + O(m) + O(m) = O(m + n)
+
+**Space complexities**
+- Space Complexity: O(1) (for ASCII)
+- int[] need = new int[128] → constant size
+- a few integers (left, right, required, etc.) → constant
